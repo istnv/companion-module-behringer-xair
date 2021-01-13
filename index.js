@@ -1,7 +1,6 @@
 
 var instance_skel = require('../../instance_skel');
 var OSC = require('osc');
-var rgb = require('../../image').rgb;
 var stripDef = require('./stripdef.json');
 var soloDef = require('./solodef.json');
 var debug;
@@ -91,13 +90,7 @@ instance.prototype.updateConfig = function(config) {
 	var self = this;
 
 	self.config = config;
-	self.init_osc();
-	self.init_stats();
-	self.init_solos();
-	self.init_actions();
-	self.init_variables();
-	self.init_feedbacks();
-	self.init_presets();
+	self.init();
 };
 
 instance.prototype.init = function() {
@@ -106,8 +99,9 @@ instance.prototype.init = function() {
 	debug = self.debug;
 	log = self.log;
 
+	self.init_constants();
 	self.init_osc();
-	self.init_stats();
+	self.init_strips();
 	self.init_solos();
 	self.init_actions();
 	self.init_variables();
@@ -149,7 +143,7 @@ instance.prototype.init_presets = function () {
 				style: 'png',
 				text: '$(xair:l_ch1)',
 				size: '18',
-				color: rgb(255,255,255),
+				color: self.rgb(255,255,255),
 				bgcolor: 0
 			},
 			actions: [
@@ -173,7 +167,7 @@ instance.prototype.init_presets = function () {
 					type: 'ch',
 					options: {
 						fg: 16777215,
-						bg: rgb(128,0,0),
+						bg: self.rgb(128,0,0),
 						theChannel: 1
 					}
 				},
@@ -192,7 +186,7 @@ instance.prototype.init_presets = function () {
 				style: 'png',
 				text: '$(xair:f_ch1_d)',
 				size: '18',
-				color: rgb(255,255,255),
+				color: self.rgb(255,255,255),
 				bgcolor: 0
 			},
 			actions: [
@@ -418,7 +412,7 @@ instance.prototype.init_solos = function () {
 								type: 'colorpicker',
 								label: 'Background color',
 								id: 'bg',
-								default: rgb.apply(this, ch.bg)
+								default: self.rgb.apply(this, ch.bg)
 							},
 						],
 						callback: function(feedback, bank) {
@@ -471,7 +465,7 @@ instance.prototype.init_solos = function () {
 								type: 'colorpicker',
 								label: 'Background color',
 								id: 'bg',
-								default: rgb.apply(this,ch.bg)
+								default: self.rgb.apply(this,ch.bg)
 							},
 						],
 						callback: function(feedback, bank) {
@@ -508,7 +502,7 @@ instance.prototype.init_solos = function () {
 	Object.assign(self.muteFeedbacks, soloFeedbacks);
 };
 
-instance.prototype.init_stats = function () {
+instance.prototype.init_strips = function () {
 	var self = this;
 
 	var i, b, c, d, l;
@@ -1381,7 +1375,10 @@ instance.prototype.sendOSC = function (node, arg) {
 	}
 };
 
-instance.prototype.fader_val = [
+instance.prototype.init_constants = function () {
+	var self = this;
+
+	self.fader_val = [
 
 		{ label: '- ∞',        id: '0.0' },
 		{ label: '-50 dB: ',   id: '0.1251' },
@@ -1404,29 +1401,29 @@ instance.prototype.fader_val = [
 		{ label: '+6 dB',      id: '0.9' },
 		{ label: '+9 dB',      id: '0.975' },
 		{ label: '+10 dB',     id: '1.0' }
-];
+	];
 
-instance.prototype.color_val = [
-		{ label: 'Off',              id: '0',	bg: 0, fg: rgb( 64, 64, 64) },
-		{ label: 'Red: ',            id: '1',	bg: rgb(224,  0,  0), fg: 0 },
-		{ label: 'Green',            id: '2',	bg: rgb(  0,224,  0), fg: 0 },
-		{ label: 'Yellow',           id: '3',	bg: rgb(224,224,  0), fg: 0 },
-		{ label: 'Blue',             id: '4',	bg: rgb(  0,  0,224), fg: 0 },
-		{ label: 'Magenta',          id: '5',	bg: rgb(224,  0,224), fg: 0 },
-		{ label: 'Cyan',             id: '6',	bg: rgb(  0,192,224), fg: 0 },
-		{ label: 'White',            id: '7',	bg: rgb(224,224,224), fg: 0 },
-		{ label: 'Off Inverted',     id: '8',	bg: rgb( 64, 64, 64), fg: 0 },
-		{ label: 'Red Inverted',     id: '9',	bg: 0, fg: rgb(224,  0,  0) },
-		{ label: 'Green Inverted',   id: '10',	bg: 0, fg: rgb(  0,224,  0) },
-		{ label: 'Yellow Inverted',  id: '11',	bg: 0, fg: rgb(224,224,  0) },
-		{ label: 'Blue Inverted',    id: '12',	bg: 0, fg: rgb(  0,  0,224) },
-		{ label: 'Magenta Inverted', id: '13',	bg: 0, fg: rgb(224,  0,224) },
-		{ label: 'Cyan Inverted',    id: '14',	bg: 0, fg: rgb(  0,192,224) },
-		{ label: 'White Inverted',   id: '15',	bg: 0, fg: rgb(224,224,224) }
-];
+	self.color_val = [
+		{ label: 'Off',              id: '0',	bg: 0, fg: self.rgb( 64, 64, 64) },
+		{ label: 'Red: ',            id: '1',	bg: self.rgb(224,  0,  0), fg: 0 },
+		{ label: 'Green',            id: '2',	bg: self.rgb(  0,224,  0), fg: 0 },
+		{ label: 'Yellow',           id: '3',	bg: self.rgb(224,224,  0), fg: 0 },
+		{ label: 'Blue',             id: '4',	bg: self.rgb(  0,  0,224), fg: 0 },
+		{ label: 'Magenta',          id: '5',	bg: self.rgb(224,  0,224), fg: 0 },
+		{ label: 'Cyan',             id: '6',	bg: self.rgb(  0,192,224), fg: 0 },
+		{ label: 'White',            id: '7',	bg: self.rgb(224,224,224), fg: 0 },
+		{ label: 'Off Inverted',     id: '8',	bg: self.rgb( 64, 64, 64), fg: 0 },
+		{ label: 'Red Inverted',     id: '9',	bg: 0, fg: self.rgb(224,  0,  0) },
+		{ label: 'Green Inverted',   id: '10',	bg: 0, fg: self.rgb(  0,224,  0) },
+		{ label: 'Yellow Inverted',  id: '11',	bg: 0, fg: self.rgb(224,224,  0) },
+		{ label: 'Blue Inverted',    id: '12',	bg: 0, fg: self.rgb(  0,  0,224) },
+		{ label: 'Magenta Inverted', id: '13',	bg: 0, fg: self.rgb(224,  0,224) },
+		{ label: 'Cyan Inverted',    id: '14',	bg: 0, fg: self.rgb(  0,192,224) },
+		{ label: 'White Inverted',   id: '15',	bg: 0, fg: self.rgb(224,224,224) }
+	];
 
 
-instance.prototype.tape_func = [
+	self.tape_func = [
 		{ label: 'STOP',                id: '0' },
 		{ label: 'PLAY PAUSE',          id: '1' },
 		{ label: 'PLAY',                id: '2' },
@@ -1434,7 +1431,8 @@ instance.prototype.tape_func = [
 		{ label: 'RECORD',              id: '4' },
 		{ label: 'FAST FORWARD',        id: '5' },
 		{ label: 'REWIND',              id: '6' }
-];
+	];
+};
 
 instance.prototype.init_actions = function(system) {
 	var self = this;
